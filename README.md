@@ -1,7 +1,6 @@
 # TMQL
 
-Library to provide EA testing for symbols that lack proper market data.
-
+Library to provide EA testing for symbols that lack proper market data.__
 It simulates real trade in MetaTrader platform including the display of orders and positions on a chart.
 
 ## Usage: ##
@@ -13,7 +12,7 @@ AddPredefSymbolProperties(Symbol(),1,5,1,SYMBOL_CALC_MODE_EXCH_FUTURES);
 AddPredefAccountProperties(ACCOUNT_MARGIN_MODE_RETAIL_NETTING);
 ```
 
-Add this to specify how it retrieves price values (ask and bid values can be innacurate for some data):
+Add this to specify how it retrieves price values (ask and bid values can be innacurate for some faulty data):
 
 ```mql5
 PriceMode = PRICE_MODE_ICLOSE; //or PRICE_MODE_BIDASK
@@ -46,22 +45,22 @@ ENUM_POSITION_TYPE type = (ENUM_POSITION_TYPE)TPositionGetInteger(POSITION_TYPE)
 
 ### List of current implemented methods (equivalent to MQ5): ###
 
-  THistoryDealGetDouble\n
-  THistoryDealGetInteger\n
-  THistoryDealGetString\n
-  THistoryDealGetTicket\n
-  THistoryDealsTotal\n
-  THistorySelect\n
-  TOrderGetDouble\n
-  TOrderGetInteger\n
-  TOrderGetString\n
-  TOrderGetDouble\n
-  TOrderGetTicket\n
-  TPositionGetDouble\n
-  TPositionGetInteger\n
-  TPositionGetString\n
-  TPositionGetTicket\n
-  TPositionsTotal\n
-  TOrderSend\n
-  TSymbolInfoDouble\n
-  TSymbolInfoInteger\n
+  THistoryDealGetDouble__
+  THistoryDealGetInteger__
+  THistoryDealGetString__
+  THistoryDealGetTicket__
+  THistoryDealsTotal__
+  THistorySelect__
+  TOrderGetDouble__
+  TOrderGetInteger__
+  TOrderGetString__
+  TOrderGetDouble__
+  TOrderGetTicket__
+  TPositionGetDouble__
+  TPositionGetInteger__
+  TPositionGetString__
+  TPositionGetTicket__
+  TPositionsTotal__
+  TOrderSend__
+  TSymbolInfoDouble__
+  TSymbolInfoInteger__
