@@ -1,9 +1,9 @@
 # TMQL
 
-Library to provide EA testing for symbols that lack proper market data.__
+Library to provide EA testing for symbols that lacks reliable historic market data.\
 It simulates real trade in MetaTrader platform including the display of orders and positions on a chart.
 
-## Usage: ##
+### Usage: ###
 
 Add these methods to the OnInit of the EA in case the account or symbol properties need to be specified:
 
@@ -43,24 +43,24 @@ double tp = TPositionGetDouble(POSITION_TP);
 ENUM_POSITION_TYPE type = (ENUM_POSITION_TYPE)TPositionGetInteger(POSITION_TYPE);
 ```
 
-### List of current implemented methods (equivalent to MQ5): ###
+#### List of currently implemented methods (equivalent to MQ5): ####
 
-  THistoryDealGetDouble__
-  THistoryDealGetInteger__
-  THistoryDealGetString__
-  THistoryDealGetTicket__
-  THistoryDealsTotal__
-  THistorySelect__
-  TOrderGetDouble__
-  TOrderGetInteger__
-  TOrderGetString__
-  TOrderGetDouble__
-  TOrderGetTicket__
-  TPositionGetDouble__
-  TPositionGetInteger__
-  TPositionGetString__
-  TPositionGetTicket__
-  TPositionsTotal__
-  TOrderSend__
-  TSymbolInfoDouble__
-  TSymbolInfoInteger__
+  THistoryDealGetDouble\
+  THistoryDealGetInteger\
+  THistoryDealGetString\
+  THistoryDealGetTicket\
+  THistoryDealsTotal\
+  THistorySelect\
+  TOrderGetDouble\
+  TOrderGetInteger\
+  TOrderGetString\
+  TOrderGetDouble\
+  TOrderGetTicket\
+  TPositionGetDouble\
+  TPositionGetInteger\
+  TPositionGetString\
+  TPositionGetTicket\
+  TPositionsTotal\
+  TOrderSend\
+  TSymbolInfoDouble\
+  TSymbolInfoInteger
