@@ -1,7 +1,7 @@
 #property copyright "Nain"
 
-#include <Nain\TMQL\Declarations.mqh>
-#include <Nain\Utilities\Utilities.mqh>
+#include "Declarations.mqh"
+#include "..\Utilities\Utilities.mqh"
 
 //-- IMPLEMENTED METHODS --
 // THistoryDealGetDouble
