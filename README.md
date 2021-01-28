@@ -5,7 +5,7 @@ It simulates real trade in MetaTrader platform including the display of orders a
 
 ### Usage: ###
 
-Add these methods to the OnInit of the EA in case the account or symbol properties need to be specified:
+Add these methods to the OnInit of the EA in case the account or symbol properties need to be specified (example):
 ```mql5
 AddPredefSymbolProperties(Symbol(),1,5,1,SYMBOL_CALC_MODE_EXCH_FUTURES);
 AddPredefAccountProperties(ACCOUNT_MARGIN_MODE_RETAIL_NETTING);
@@ -27,7 +27,7 @@ double sl = PositionGetDouble(POSITION_SL);
 double tp = PositionGetDouble(POSITION_TP);
 ENUM_POSITION_TYPE type = (ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
 ```
-TMQL version of the sample to be simulated (a single T is added behind the normal MQL5 methods):
+TMQL version of the sample to be simulated (a T is added behind the normal MQL5 methods):
 ```mql5
 ulong  position_ticket = TPositionGetTicket(i);
 string position_symbol = TPositionGetString(POSITION_SYMBOL);
