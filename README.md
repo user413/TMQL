@@ -1,5 +1,7 @@
 # TMQL
 
+*Project discontinued*
+
 Library to provide EA testing for symbols that lack reliable historic market data.\
 It simulates real trade in MetaTrader platform including the display of orders and positions on a chart.
 
