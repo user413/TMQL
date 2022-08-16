@@ -1,5 +1,10 @@
 #include <Object.mqh>
 #include <Arrays\ArrayObj.mqh>
+// #include <Nain\Utility\Utility.mqh>
+#include "..\packages\Utility-1.1.0\Utility.mqh"
+
+Nain::Utility::Math m_TMQL;
+Nain::Utility::ChartObj co_TMQL;
 
 class Position : public CObject{
    public:
@@ -54,12 +59,13 @@ enum EnumTChartAction{
 //   POSITION_MODE_MULTIPLE //-- MULTIPLE POSITIONS CAN EXIST AT ONCE, SAME DIRECTION ORDER CREATE A NEW POSITION
 //};
 
-CArrayObj Positions;
-CArrayObj Orders;
+CArrayObj Positions; //open positions
+CArrayObj Orders; //open orders
 CArrayObj Deals;
 
 //-- UPDATED BY THistorySelect
 CArrayObj SelectedHistoryDeals;
+//CArrayObj SelectedHistoryOrders;
 
 //-- SELECTED BY TOrderGetTicket,TOrderSelect,TPositionGetTicket,TPositionSelect
 Order SelectedOrder;

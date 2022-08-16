@@ -1,7 +1,7 @@
 #property copyright "Nain"
 
 #include "Declarations.mqh"
-#include "..\Utilities\Utilities.mqh"
+//#include "..\Utilities\Utilities.mqh"
 
 //-- IMPLEMENTED METHODS --
 // THistoryDealGetDouble
@@ -23,6 +23,8 @@
 // TOrderSend
 // TSymbolInfoDouble
 // TSymbolInfoInteger
+// TOrderSelect
+// TPositionSelect
 
 //-- SUMMARY --
 // int TPositionsTotal();
@@ -47,14 +49,22 @@ void ClearHistoryDealList(){
 }
 
 bool THistorySelect(datetime fromDate, datetime toDate){
-   if(fromDate > toDate) return false;
    ClearHistoryDealList();
+   if(fromDate > toDate) return false;
+   
    //-- SELECTING DEALS
    for(int c = Deals.Total() - 1; c >= 0; c--){
       Deal *deal = Deals.At(c);
       if(deal.Time >= fromDate && deal.Time <= toDate)
          SelectedHistoryDeals.Add(deal);
    }
+   
+   //for(int c = Orders.Total() - 1; c >= 0; c--){
+   //   Deal *deal = Deals.At(c);
+   //   if(deal.Time >= fromDate && deal.Time <= toDate)
+   //      SelectedHistoryOrders.Add(deal);
+   //}
+   
    if(SelectedHistoryDeals.Total() <= 0) return false;
    return true;
 }
@@ -161,6 +171,13 @@ double TOrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE prop) export{
    return 0;
 }
 
+bool TOrderSelect(ulong ticket){
+   int i = GetOrderIndexByTicket(ticket);
+   if(i<0) return false;
+   SelectedOrder = Orders.At(i);
+   return true;
+}
+
 ulong TOrderGetTicket(uint orderIndex) export{
    Order *order = Orders.At(orderIndex);
    if(order == NULL) return 0;
@@ -186,6 +203,18 @@ bool OrderTicketIsUnique(long ticket,int ordersTotal){
 
 
 //-- POSITION METHODS
+
+bool TPositionSelect(string symbol){
+   for (int i = 0; i < Positions.Total(); i++)
+   {
+      Position *position = Positions.At(i);
+      if(position.Symbol == symbol){
+         SelectedPosition = position;
+         return true;
+      }
+   }
+   return false;
+}
 
 int TPositionsTotal() export{
    return Positions.Total();
@@ -303,7 +332,7 @@ double TSymbolInfoDouble(string symbol,ENUM_SYMBOL_INFO_DOUBLE prop){
             case PRICE_MODE_BIDASK:
                return SymbolInfoDouble(symbol,SYMBOL_ASK);
             case PRICE_MODE_ICLOSE:
-               return RoundPoints(iClose(symbol,PERIOD_CURRENT,0),true,true,UsePredefSymbolVariables ? props.SymbolTickSize : SymbolInfoDouble(symbol,SYMBOL_TRADE_TICK_SIZE));
+               return m_TMQL.Round(iClose(symbol,PERIOD_CURRENT,0),true,true,UsePredefSymbolVariables ? props.SymbolTickSize : SymbolInfoDouble(symbol,SYMBOL_TRADE_TICK_SIZE));
          }
       }
       case SYMBOL_BID:{
@@ -311,7 +340,7 @@ double TSymbolInfoDouble(string symbol,ENUM_SYMBOL_INFO_DOUBLE prop){
             case PRICE_MODE_BIDASK:
                return SymbolInfoDouble(symbol,SYMBOL_BID);
             case PRICE_MODE_ICLOSE:
-               return RoundPoints(iClose(symbol,PERIOD_CURRENT,0),true,false,UsePredefSymbolVariables ? props.SymbolTickSize : SymbolInfoDouble(symbol,SYMBOL_TRADE_TICK_SIZE));
+               return m_TMQL.Round(iClose(symbol,PERIOD_CURRENT,0),true,false,UsePredefSymbolVariables ? props.SymbolTickSize : SymbolInfoDouble(symbol,SYMBOL_TRADE_TICK_SIZE));
          }
       }
    }
@@ -365,7 +394,7 @@ int GetFirstPositionIndexBySymbol(string symbol){
    return -1;
 }
 
-Deal *ManagePositionDealExecution(ulong positionTicket,ENUM_DEAL_TYPE dealType,double dealPrice,double dealVolume,ulong orderTicket){
+Deal* ManagePositionDealExecution(ulong positionTicket,ENUM_DEAL_TYPE dealType,double dealPrice,double dealVolume,ulong orderTicket){
    int positionIndex;
    if(positionTicket == 0){
       Order *order = Orders.At(GetOrderIndexByTicket(orderTicket));
@@ -798,23 +827,23 @@ int GetSymbolSellOrdersTotal(string symbol){
 //void DrawPosition(ulong posTicket,string symbol,double avgPosPrice,double sl,double tp){
 void DrawDealArrow(string symbol,double price,datetime time,ENUM_DEAL_TYPE dealType){
    long currentChartID = ChartFirst();
-   long nextChartID = ChartNext(currentChartID);
-   while(currentChartID != nextChartID){
+   //long nextChartID = ChartNext(currentChartID);
+   while(currentChartID >= 0){ //!= nextChartID
       if(ChartSymbol(currentChartID) == symbol){
          if(dealType == DEAL_TYPE_BUY)
-            DrawBuyArrow(currentChartID,price,time);
+            co_TMQL.DrawBuyArrow(currentChartID,price,time);
          else
-            DrawSellArrow(currentChartID,price,time);
+            co_TMQL.DrawSellArrow(currentChartID,price,time);
       }
-      currentChartID = nextChartID;
-      nextChartID = ChartNext(currentChartID);
+      //currentChartID = nextChartID;
+      //nextChartID = ChartNext(currentChartID);
+      currentChartID = ChartNext(currentChartID);
    }
 }
 
 void DrawPosition(Position *position,EnumTChartAction chartAction = CHART_ACTION_DRAW){
    long currentChartID = ChartFirst();
-   long nextChartID = ChartNext(currentChartID);
-   while(currentChartID != nextChartID){
+   while(currentChartID >= 0){
       if(ChartSymbol(currentChartID) == position.Symbol){
          string positionAvgPriceObjName = "Position" + (string)position.Ticket;
          string positionSLObjName = "Position" + (string)position.Ticket + "SL";
@@ -824,14 +853,14 @@ void DrawPosition(Position *position,EnumTChartAction chartAction = CHART_ACTION
             if(ObjectFind(currentChartID,positionAvgPriceObjName) >= 0)
                ObjectSetDouble(currentChartID,positionAvgPriceObjName,OBJPROP_PRICE,position.AvgPosPrice);
             else
-               DrawHLine(currentChartID,positionAvgPriceObjName,position.AvgPosPrice,clrGreen,STYLE_DASHDOTDOT);
+               co_TMQL.DrawHLine(currentChartID,positionAvgPriceObjName,position.AvgPosPrice,clrGreen,STYLE_DASHDOTDOT);
             
             //-- DRAW POSITION SL
             if(position.SL != 0){
                if(ObjectFind(currentChartID,positionSLObjName) >= 0)
                   ObjectSetDouble(currentChartID,positionSLObjName,OBJPROP_PRICE,position.SL);
                else
-                  DrawHLine(currentChartID,positionSLObjName,position.SL,clrGreen,STYLE_DOT);
+                  co_TMQL.DrawHLine(currentChartID,positionSLObjName,position.SL,clrGreen,STYLE_DOT);
             }
             else{
                ObjectDelete(currentChartID,positionSLObjName);
@@ -842,7 +871,7 @@ void DrawPosition(Position *position,EnumTChartAction chartAction = CHART_ACTION
                if(ObjectFind(currentChartID,positionTPObjName) >= 0)
                   ObjectSetDouble(currentChartID,positionTPObjName,OBJPROP_PRICE,position.TP);
                else
-                  DrawHLine(currentChartID,positionTPObjName,position.TP,clrGreen,STYLE_DOT);
+                  co_TMQL.DrawHLine(currentChartID,positionTPObjName,position.TP,clrGreen,STYLE_DOT);
             }
             else{
                ObjectDelete(currentChartID,positionTPObjName);
@@ -854,15 +883,13 @@ void DrawPosition(Position *position,EnumTChartAction chartAction = CHART_ACTION
             ObjectDelete(currentChartID,positionTPObjName);            
          }
       }
-      currentChartID = nextChartID;
-      nextChartID = ChartNext(currentChartID);
+      currentChartID = ChartNext(currentChartID);
    }
 }
 
 void DrawOrder(Order *order,EnumTChartAction chartAction = CHART_ACTION_DRAW){
    long currentChartID = ChartFirst();
-   long nextChartID = ChartNext(currentChartID);
-   while(currentChartID != nextChartID){
+   while(currentChartID >= 0){
       if(ChartSymbol(currentChartID) == order.Symbol){
          string orderPriceObjName = "Order" + (string)order.Ticket;
          string orderSLObjName = "Order" + (string)order.Ticket + "SL";
@@ -872,14 +899,14 @@ void DrawOrder(Order *order,EnumTChartAction chartAction = CHART_ACTION_DRAW){
             if(ObjectFind(currentChartID,orderPriceObjName) >= 0)
                ObjectSetDouble(currentChartID,orderPriceObjName,OBJPROP_PRICE,order.Price);
             else
-               DrawHLine(currentChartID,orderPriceObjName,order.Price,clrRed,STYLE_DASHDOT);
+               co_TMQL.DrawHLine(currentChartID,orderPriceObjName,order.Price,clrRed,STYLE_DASHDOT);
             
             //-- DRAW ORDER SL   
             if(order.SL != 0){
                if(ObjectFind(currentChartID,orderSLObjName) >= 0)
                   ObjectSetDouble(currentChartID,orderSLObjName,OBJPROP_PRICE,order.SL);
                else
-                  DrawHLine(currentChartID,orderSLObjName,order.SL,clrRed,STYLE_DOT);
+                  co_TMQL.DrawHLine(currentChartID,orderSLObjName,order.SL,clrRed,STYLE_DOT);
             }
             else{
                ObjectDelete(currentChartID,orderSLObjName);
@@ -890,7 +917,7 @@ void DrawOrder(Order *order,EnumTChartAction chartAction = CHART_ACTION_DRAW){
                if(ObjectFind(currentChartID,orderTPObjName) >= 0)
                   ObjectSetDouble(currentChartID,orderTPObjName,OBJPROP_PRICE,order.TP);
                else
-                  DrawHLine(currentChartID,orderTPObjName,order.TP,clrRed,STYLE_DOT);
+                  co_TMQL.DrawHLine(currentChartID,orderTPObjName,order.TP,clrRed,STYLE_DOT);
             }
             else{
                ObjectDelete(currentChartID,orderTPObjName);
@@ -902,8 +929,7 @@ void DrawOrder(Order *order,EnumTChartAction chartAction = CHART_ACTION_DRAW){
             ObjectDelete(currentChartID,orderTPObjName);            
          }
       }
-      currentChartID = nextChartID;
-      nextChartID = ChartNext(currentChartID);
+      currentChartID = ChartNext(currentChartID);
    }
 }
 
@@ -930,8 +956,7 @@ double GetSymbolSellPositionVolumeTotal(string symbol){
 
 void DrawTesterPanel(string symbol,EnumTChartAction chartAction){
    long currentChartID = ChartFirst();
-   long nextChartID = ChartNext(currentChartID);
-   while(currentChartID != nextChartID){
+   while(currentChartID >= 0){
       if(ChartSymbol(currentChartID) == symbol){
          switch(chartAction){
             case CHART_ACTION_DRAW:{
@@ -962,38 +987,35 @@ void DrawTesterPanel(string symbol,EnumTChartAction chartAction){
             }
          }
       }
-      currentChartID = nextChartID;
-      nextChartID = ChartNext(currentChartID);
+      currentChartID = ChartNext(currentChartID);
    }
 }
 
 void CreateTesterPanel(long chartID){
    long xDistance = 4;
    long fontSize = 9;
-   DrawLabel(chartID,"Profit_TMQL","Profit: "+(string)CurrentProfit,xDistance,15,clrWhite,fontSize,CORNER_LEFT_UPPER);
-   DrawLabel(chartID,"PositionProfit_TMQL","Position profit: 0",xDistance,30,clrWhite,fontSize,CORNER_LEFT_UPPER);
-   DrawLabel(chartID,"BuyPositions_TMQL","Buy positions: "+(string)GetSymbolBuyPositionsTotal(ChartSymbol(chartID)) + " (Total Vol.: "+ (string)GetSymbolBuyPositionVolumeTotal(ChartSymbol(chartID))+ ")",xDistance,45,clrWhite,
+   co_TMQL.DrawLabel(chartID,"Profit_TMQL","Profit: "+(string)CurrentProfit,xDistance,15,clrWhite,fontSize,CORNER_LEFT_UPPER);
+   co_TMQL.DrawLabel(chartID,"PositionProfit_TMQL","Position profit: 0",xDistance,30,clrWhite,fontSize,CORNER_LEFT_UPPER);
+   co_TMQL.DrawLabel(chartID,"BuyPositions_TMQL","Buy positions: "+(string)GetSymbolBuyPositionsTotal(ChartSymbol(chartID)) + " (Total Vol.: "+ (string)GetSymbolBuyPositionVolumeTotal(ChartSymbol(chartID))+ ")",xDistance,45,clrWhite,
       fontSize,CORNER_LEFT_UPPER);
-   DrawLabel(chartID,"SellPositions_TMQL","Sell positions: "+(string)GetSymbolSellPositionsTotal(ChartSymbol(chartID)) + " (Total Vol.: "+ (string)GetSymbolSellPositionVolumeTotal(ChartSymbol(chartID))+ ")",xDistance,60,clrWhite,
+   co_TMQL.DrawLabel(chartID,"SellPositions_TMQL","Sell positions: "+(string)GetSymbolSellPositionsTotal(ChartSymbol(chartID)) + " (Total Vol.: "+ (string)GetSymbolSellPositionVolumeTotal(ChartSymbol(chartID))+ ")",xDistance,60,clrWhite,
       fontSize,CORNER_LEFT_UPPER);
-   DrawLabel(chartID,"BuyOrders_TMQL","Buy orders: "+(string)GetSymbolBuyOrdersTotal(ChartSymbol(chartID)),xDistance,75,clrWhite,
+   co_TMQL.DrawLabel(chartID,"BuyOrders_TMQL","Buy orders: "+(string)GetSymbolBuyOrdersTotal(ChartSymbol(chartID)),xDistance,75,clrWhite,
    fontSize,CORNER_LEFT_UPPER);
-   DrawLabel(chartID,"SellOrders_TMQL","Sell orders: "+(string)GetSymbolSellOrdersTotal(ChartSymbol(chartID)),xDistance,90,clrWhite,
+   co_TMQL.DrawLabel(chartID,"SellOrders_TMQL","Sell orders: "+(string)GetSymbolSellOrdersTotal(ChartSymbol(chartID)),xDistance,90,clrWhite,
    fontSize,CORNER_LEFT_UPPER);
 }
 
 void DrawPositionProfit(string symbol,double livePositionProfit){
    long currentChartID = ChartFirst();
-   long nextChartID = ChartNext(currentChartID);
-   while(currentChartID != nextChartID){
+   while(currentChartID >= 0){
       if(ChartSymbol(currentChartID) == symbol){
          if(ObjectFind(currentChartID,"PositionProfit_TMQL") < 0)
             CreateTesterPanel(currentChartID);
          else
             ObjectSetString(currentChartID,"PositionProfit_TMQL",OBJPROP_TEXT,"Position profit: "+ (string)livePositionProfit);
       }
-      currentChartID = nextChartID;
-      nextChartID = ChartNext(currentChartID);
+      currentChartID = ChartNext(currentChartID);
    }
 }
 
