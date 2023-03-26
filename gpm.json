@@ -1,13 +1,10 @@
 {
-  "version": "1.0.0",
   "dependencies": [
-	"%MQL5%\\Include\\Nain\\Utility"
+	"%MT5-2%\\MQL5\\Include\\Nain\\Utility"
   ],
-  "ignored_files": [
-	"gpm.json"
-  ],
+  "ignored_files": [],
   "ignored_directories": [
-    "\\.git"
+	"\\.git","\\.vscode"
   ],
   "repositories": []
 }

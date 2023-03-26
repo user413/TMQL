@@ -1,0 +1,12 @@
+{
+  "dependencies": [],
+  "ignored_files": [
+    
+  ],
+  "ignored_directories": [
+    "\\.git","\\.vscode"
+  ],
+  "repositories": [
+	"%WORKSPACE%\\GPM-PACKAGES"
+  ]
+}
