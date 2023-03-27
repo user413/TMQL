@@ -1,32 +1,43 @@
 # TMQL
 
-*Project discontinued*
+*This project was built according to my own demands therefore most features are partially implemented. It contains the most common MQL5 features that could 
+be useful for most clients.*
 
 Library to provide EA testing for symbols that lack reliable historic market data.\
 It simulates real trade in MetaTrader platform including the display of orders and positions on a chart.
 
 ### Usage: ###
 
+Add these methods to the beginning of OnInit of the EA in case the account or symbol properties need to be specified (example):
+```mql5
+AddPredefSymbolProperties(Symbol(),1,5,1,SYMBOL_CALC_MODE_EXCH_FUTURES);
+AddPredefAccountProperties(ACCOUNT_MARGIN_MODE_RETAIL_NETTING);
+
+//-- Additional configuration variables:
+
+//-- How the program retrieves price values (ask and bid values can be innacurate for some faulty data)
+PriceMode = PRICE_MODE_ICLOSE; //or PRICE_MODE_BIDASK
+
+//-- To use order/sltp prices as the deal price (false) instead of market prices (true)
+UseMarketPricesForLimitOrdersAndSLTP = false;
+
+//-- Automatically show and update the trade information panel. Set false to improve performance but TShowInfoPanel must be manually called to show panel
+ShowInformationPanel = true;
+```
 Add this method to the beginning of OnTick method:
 ```mql5
 //-- Manages order executions, SL, TP
 TManageTrade();
 ```
-Add these methods to the beginning of OnInit of the EA in case the account or symbol properties need to be specified (example):
-```mql5
-AddPredefSymbolProperties(Symbol(),1,5,1,SYMBOL_CALC_MODE_EXCH_FUTURES);
-AddPredefAccountProperties(ACCOUNT_MARGIN_MODE_RETAIL_NETTING);
-```
 Add this method in the beginning of OnTimer. Necessary in order to cancel ORDER_TIME_DAY orders before the trade session of the next day (Note: currently implemented only for symbols with SYMBOL_CALC_MODE_EXCH_FUTURES mode):
 ```mql5
 //-- Note: In order to work properly it is recommended to have a < 1 minute timer set up
-HandleOrderTime();
+THandleOrderTime();
 ```
-Add this to specify how it retrieves price values (ask and bid values can be innacurate for some faulty data):
+The client code must contain the OnTradeTransaction method defined. If this event won't be used declare an empty method:
 ```mql5
-PriceMode = PRICE_MODE_ICLOSE; //or PRICE_MODE_BIDASK
+void OnTradeTransaction(const MqlTradeTransaction& trans, const MqlTradeRequest& request, const MqlTradeResult& result) { }
 ```
-
 Normal MQL5 sample of code:
 ```mql5
 ulong  position_ticket = PositionGetTicket(i);
@@ -52,22 +63,37 @@ ENUM_POSITION_TYPE type = (ENUM_POSITION_TYPE)TPositionGetInteger(POSITION_TYPE)
 
 #### List of currently implemented methods (equivalent to MQ5): ####
 
-  THistoryDealGetDouble\
-  THistoryDealGetInteger\
-  THistoryDealGetString\
-  THistoryDealGetTicket\
-  THistoryDealsTotal\
-  THistorySelect\
-  TOrderGetDouble\
-  TOrderGetInteger\
-  TOrderGetString\
-  TOrderGetDouble\
-  TOrderGetTicket\
-  TPositionGetDouble\
-  TPositionGetInteger\
-  TPositionGetString\
-  TPositionGetTicket\
-  TPositionsTotal\
-  TOrderSend\
-  TSymbolInfoDouble\
-  TSymbolInfoInteger
+TiClose\
+TiOpen\
+TOrderGetDouble\
+TOrderGetInteger\
+TOrderGetString\
+TOrderGetDouble\
+TOrderGetTicket\
+TOrdersTotal\
+TPositionGetDouble\
+TPositionGetInteger\
+TPositionGetString\
+TPositionGetTicket\
+TPositionsTotal\
+TOrderSend\
+TSymbolInfoDouble\
+TSymbolInfoInteger\
+TAccountInfoInteger\
+TOrderSelect\
+TPositionSelect\
+TPositionSelectByTicket\
+THistorySelect\
+THistoryDealGetDouble\
+THistoryDealGetInteger\
+THistoryDealGetString\
+THistoryDealGetTicket\
+THistoryDealsTotal\
+THistoryOrderSelect\
+THistoryOrderGetDouble\
+THistoryOrderGetInteger\
+THistoryOrderGetString\
+THistoryOrderGetTicket\
+THistoryOrdersTotal\
+TObjectsDeleteAll\
+TGetLastError
