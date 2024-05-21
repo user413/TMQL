@@ -7,7 +7,10 @@ Library to provide EA testing for symbols that lack reliable historic market dat
 It simulates real trade in MetaTrader platform including the display of orders and positions on a chart.
 
 ### Usage: ###
-
+Include the TMQL.mqh file. Location may differ.
+```mql5
+#include <TMQL/TMQL/TMQL.mqh>
+```
 Add these methods to the beginning of OnInit of the EA in case the account or symbol properties need to be specified (example):
 ```mql5
 AddPredefSymbolProperties(Symbol(),1,5,1,SYMBOL_CALC_MODE_EXCH_FUTURES);

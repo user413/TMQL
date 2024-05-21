@@ -2,8 +2,8 @@
 
 #include <Object.mqh>
 #include <Arrays\ArrayObj.mqh>
-//#include <Nain\Utility\Utility.mqh>
-//#include <Nain\Utility\Generic.mqh>
+// #include <Nain\Utility\Utility.mqh>
+// #include <Nain\Utility\Generic.mqh>
  #include "..\packages\Utility\Utility.mqh"
  #include "..\packages\Utility\Generic.mqh"
 
@@ -218,6 +218,7 @@ void HandleOnTradeTransaction(){
             sTrans.Trans.type = TRADE_TRANSACTION_HISTORY_ADD;
             sTrans.Trans.order = sTrans.Request.order;
             sTrans.Trans.order_state = ORDER_STATE_CANCELED;
+            sTrans.Trans.symbol = sTrans.Request.symbol;
             OnTradeTransaction(sTrans.Trans, EmptyReq, EmptyRes);
             break;
       }
@@ -275,10 +276,6 @@ void HandleOnTradeTransaction(){
    //    TRADE_TRANSACTION_DEAL_ADD
    //    TRADE_TRANSACTION_ORDER_DELETE
    //    TRADE_TRANSACTION_HISTORY_ADD
-   // case TRADE_ACTION_MODIFY:
-   //    TRADE_TRANSACTION_ORDER_UPDATE
-   //    TRADE_TRANSACTION_REQUEST
-   //    break;
    // case TRADE_ACTION_CLOSE_BY:
    //    break;
    // default:

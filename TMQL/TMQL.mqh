@@ -3,6 +3,8 @@
 #include "Background.mqh"
 
 //-- IMPLEMENTED(PARTIALLY) METHODS --
+// TiClose
+// TiOpen
 // TOrderGetDouble
 // TOrderGetInteger
 // TOrderGetString
@@ -22,6 +24,7 @@
 // TPositionSelect
 // TPositionSelectByTicket
 // THistorySelect
+// THistoryDealSelect
 // THistoryDealGetDouble
 // THistoryDealGetInteger
 // THistoryDealGetString
@@ -116,6 +119,22 @@ bool THistorySelect(datetime fromDate, datetime toDate){
 
 //-- DEAL HISTORY
 
+bool THistoryDealSelect(long ticket){
+   TMQL::ClearHistoryDealList();
+   
+   for (int i = 0; i < TMQL::Deals.Total(); i++)
+   {
+      TMQL::Deal* d = TMQL::Deals.At(i);
+
+      if(d.Ticket == ticket){
+        TMQL::SelectedHistoryDeals.Add(d);
+        return true;
+      }
+   }
+
+   return false;
+}
+
 ulong THistoryDealGetTicket(int dealIndex){
    TMQL::Deal *historyDeal = TMQL::SelectedHistoryDeals.At(dealIndex);
    if(historyDeal == NULL) return 0;
@@ -177,9 +196,11 @@ ulong THistoryOrderGetTicket(int orderIndex){
 
 bool THistoryOrderSelect(ulong orderTicket){
    TMQL::ClearHistoryOrderList();
+
    for (int i = 0; i < TMQL::HistoryOrders.Total(); i++)
    {
       TMQL::Order* o = TMQL::HistoryOrders.At(i);
+
       if(o.Ticket == orderTicket){
         TMQL::SelectedHistoryOrders.Add(o);
         return true;
@@ -226,7 +247,7 @@ ulong THistoryOrderGetInteger(ulong ticket,ENUM_ORDER_PROPERTY_INTEGER prop){
 double THistoryOrderGetDouble(ulong ticket,ENUM_ORDER_PROPERTY_DOUBLE prop){
    TMQL::Order* order = TMQL::GetHistoryOrderByTicket(ticket);
    switch(prop){
-      // case ORDER_VOLUME_CURRENT: return order.VolumeCurrent;
+      case ORDER_VOLUME_CURRENT: return order.VolumeCurrent;
       case ORDER_VOLUME_INITIAL: return order.VolumeInitial;
       case ORDER_PRICE_OPEN: return order.PriceOpen;
       // case ORDER_PRICE_STOPLIMIT: return order.PriceStopLimit;
@@ -688,6 +709,7 @@ bool TOrderSend(MqlTradeRequest &req,MqlTradeResult &res){
          }
          else if(TAccountInfoInteger(ACCOUNT_MARGIN_MODE) == ACCOUNT_MARGIN_MODE_RETAIL_NETTING){
             reqPositionIndex = TMQL::GetPositionIndexByTicket(TMQL::GetFirstPositionTicketBySymbol(req.symbol));
+            reqPosition = TMQL::Positions.At(reqPositionIndex);
 
             if(reqPositionIndex < 0){
                TMQL::PrintError("Position doesn't exist");
